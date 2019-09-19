@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+     <!--  <title>活动列表</title>-->
+        <link rel="stylesheet" href="../css/mui.min.css">
+        <style>
+            .title {
+                margin: 20px 15px 10px;
+                color: #6d6d72;
+                font-size: 15px;
+            }
+        </style>
+    </head>
+
+    <body>
+ <!--           <header class="mui-bar mui-bar-nav" >
+                <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+                <h1 class="mui-title">活动列表</h1>
+            </header>-->
+
+            <div id="wrap">  
+               <div class="mui-content">
+                <div id="pullrefresh" class="mui-scroll-wrapper">
+                    <div class="mui-scroll">
+                        <ul class="mui-table-view" id="consultantslist">
+                               <li class="mui-table-view-cell" v-for="item in items">
+                                      <span class="id mui-hidden">{{item.id}}</span>
+                                    <a class="mui-navigate-right">
+                                        <div class="mui-media-body">
+                                            {{item.title}}
+                                            <p class='mui-ellipsis'>{{item.shortTitle}}</p>
+                                        </div>
+                                    </a>
+                               </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+        <script src="../js/mui.min.js"></script>
+        <script src="../myjs/jquery.min.js"></script>
+        <script src="../myjs/vue.min.js"></script>
+        <script type="text/javascript">
+            var consultantslist = new Vue({
+                el: '#consultantslist',
+                data: {
+                    items: [] //列表信息流数据
+                },
+                methods:{
+                    add:function(list){
+                        this.items = this.items.concat(list);
+                    }
+                } 
+            });    
+            var pageNumber=1;//当前页数
+            mui.init({
+                pullRefresh: {
+                    container: '#pullrefresh',
+                    down: {
+                        callback: pulldownRefresh
+                    },
+                    up: {
+                        contentrefresh: '正在加载...',
+                        callback: pullupRefresh
+                    }
+                }
+            });
+            if (mui.os.plus) {
+                mui.plusReady(function() {
+                    setTimeout(function() {
+                        mui('#pullrefresh').pullRefresh().pullupLoading();
+                    }, 1000);
+
+                });
+            } else {
+                mui.ready(function() {
+                    mui('#pullrefresh').pullRefresh().pullupLoading();
+                });
+            }
+            function pulldownRefresh(){
+                pageNumber = 1;
+                var data = {
+                    currentPage:pageNumber,
+                    pageSize:5
+                }
+                $.ajax({
+                    url:'http://www.badqh.cn/activelist/selectAllByPage',
+                    data: data,
+                    dataType: 'json', //服务器返回json格式数据
+                    type: 'get', //HTTP请求类型
+                    timeout: 10000, //超时时间设置为10秒；
+                    success: function(result) {
+                    	debugger;
+                            consultantslist.items=result.data;
+                            mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                            mui('#pullrefresh').pullRefresh().refresh((result.data.length>=5));
+                            pageNumber++;
+                    },
+                    error: function() {
+
+                    }
+                });
+            }
+        
+            function pullupRefresh(){
+                var data = {
+                    currentPage:pageNumber,
+                    pageSize:5
+                }
+                $.ajax({
+                    url:'http://www.badqh.cn/activelist/selectAllByPage',
+                    data: data,
+                    dataType: 'json', //服务器返回json格式数据
+                    type: 'get', //HTTP请求类型
+                    timeout: 10000, //超时时间设置为10秒；
+                    success: function(result) {
+                        consultantslist.add(result.data);
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh((result.data.length < 5)); //参数为true代表没有更多数据了。
+                        pageNumber++;
+                    },
+                    error: function() {
+
+                    }
+                });
+            }
+            
+            
+                //详情
+                $("#consultantslist").on("click","li",function(){      //只需要找到你点击的是哪个ul里面的就行
+                    
+                    var id = $(this).find('.id').text();
+                    var data = {
+                        id: id
+                    }
+                    
+                    mui.openWindow({
+                        url:'active_detail.html?id='+id,
+                        id:"activelistdetail"
+                    });
+     
+                });
+                
+        </script>
+    </body>
+
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" class="feedback">
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>问题反馈</title>
+		<link rel="stylesheet" type="text/css" href="../css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/feedback.css" />
+		
+		<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+	</head>
+
+	<body>
+
+		<div class="mui-content bg-white">
+			<form class="mui-input-group" id="fm-post" method="post" action="#">
+				<input type="hidden" name="memberId" value="0">
+				<input type="hidden" name="consultType" value="0">
+				<input type="hidden" name="consId">
+				<input type="hidden" name="pic">
+				<div class="row">
+					<textarea id='question' name="content" class="required mui-input-clear question h250 " rangelength=[15,300]  placeholder="描述你的问题..."></textarea>
+				</div>
+				 <div> <button id="addBtn" class="mui-btn" type="button">添加</button>	</div>
+				<div id='image-list' class="row image-list">			
+				</div> 
+	
+				<!--<div class="mui-input-row mg-left">
+					<input class="zoom120" type="checkbox" name="anonym" value="1">
+					<div class="mui-h4 disp-inline">匿名</div>
+				</div>-->
+	
+				<div class="sub-div">
+					<button id="submit" class="mui-btn mui-btn-danger w90" type="submit">提交</button>
+				</div>
+			</form>
+
+		</div>
+		
+		<script src="../js/mui.min.js"></script>
+        <script src="../myjs/jquery.min.js"></script>
+        <script src="../myjs/vue.min.js"></script>
+		<script type="text/javascript">
+			mui.init();
+			 
+			var localIds=[];
+            var serverIds=[];
+            var imgIds=[];
+            
+			var _data = {
+				url: location.href,
+				t: Math.random()
+			};
+			
+			// 获取微信签名
+			$.ajax({    
+				url:'http://www.badqh.cn/mywechat/sign',
+				data: _data,
+				async: true,
+				success: function(o) {
+					debugger;
+					if(o.rtnCode == 200) {
+						wxConfig(o.data.appid, o.data.timestamp, o.data.nonceStr, o.data.signature);
+					}  
+				}
+			});
+
+			function wxConfig(_appId, _timestamp, _nonceStr, _signature) {
+				wx.config({
+					debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+					appId: _appId, // 必填，公众号的唯一标识
+					timestamp: _timestamp, // 必填，生成签名的时间戳
+					nonceStr: _nonceStr, // 必填，生成签名的随机串
+					signature: _signature, // 必填，签名，见附录1
+					jsApiList: ['chooseImage', 'uploadImage','getLocalImgData']
+					// 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+				});
+			}
+ 
+ 	        $('#addBtn').click(function() {
+				if(imgIds.length>=6){
+					mui.alert('最多选择6张照片');                          
+					return;     
+				}
+
+				wx.chooseImage({
+					count: 6,
+					sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+					sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+					success: function(res) {
+						localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+						if (localIds.length == 0) {                         
+							mui.alert('请选择图片');                          
+							return;                     
+						}
+						
+						//异步上传到微信服务器
+						syncUpload();
+
+					}
+
+				});
+
+			});
+
+			//微信上传图片
+			function syncUpload() {
+				//若localIds为空，则上传完毕
+				if (!localIds.length) {	 
+					mui.alert('上传成功!'); 
+		        } else {
+		        	var localId = localIds.pop();
+		        	//解决IOS无法上传的坑            
+					if (localId.indexOf("wxlocalresource") != -1) {                
+						localId = localId.replace("wxlocalresource", "wxLocalResource");            
+					}
+					//上传图片
+		            wx.uploadImage({
+		                localId: localId,  // 需要上传的图片的本地ID，由chooseImage接口获得
+		                isShowProgressTips: 1,
+		                success: function(res) {
+		                	
+		                	   serverIds.push(res.serverId);	
+		                	   
+		                	   $.ajax({
+
+								url: "http://www.badqh.cn/mywechat/saveImg",
+	
+								async: false,
+	
+								contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+	
+								data: {
+									serverId: res.serverId
+								},
+	
+								type: "POST",
+	
+								timeout: 30000,
+	
+								success: function(data, textStatus) {	
+									syncUpload();
+									imgIds.push(data.data.imgUrl);	
+									alert("data.data.imgUrl==>"+data.data.imgUrl);
+									$("#image-list").append('<div class="dv-img-container" id="'+data.data.servId+'"><img width="20px" height="20px" src="http://www.badqh.cn/'+data.data.imgUrl+'"/></div>');
+								},
+	
+								error: function(XMLHttpRequest, textStatus, errorThrown) {
+	
+									mui.alert('上传错误,请稍候重试!');
+	
+								}
+	
+							});
+							
+		                },
+						fail: function(error) {
+	
+							mui.alert('上传到微信服务器错误,请稍候重试!');
+	
+						}
+		            });
+		        }	
+			}
+		</script>
+	</body>
+
+</html>

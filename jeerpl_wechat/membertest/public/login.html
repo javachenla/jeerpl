@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="../css/mui.min.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		
+		<form class="mui-input-group">
+		    <div class="mui-input-row">
+		        <label>用户名</label>
+		    <input name="name"  id="name" type="text" class="mui-input-clear" placeholder="请输入用户名">
+		    </div>
+		    <div class="mui-input-row">
+		        <label>密码</label>
+		        <input name="password"  id="password" type="password" class="mui-input-password" placeholder="请输入密码">
+		    </div>
+		    <div class="mui-button-row" id="loginDiv">
+		        <button type="button" id="loginBtn" class="mui-btn mui-btn-primary" style="width: 100%;" >登录</button>
+		    </div>
+		</form>
+		
+		<script src="../js/mui.min.js"></script>
+		<script src="../myjs/jquery.min.js" ></script>
+		<script src="../myjs/vue.min.js"></script>
+	    <script src="../myjs/common.js"></script>
+	    
+		<script type="text/javascript">
+			mui.init()
+			
+			var data={};
+			 
+			mui("#loginDiv").on('click',"#loginBtn",function(){
+			     loginUser();
+		    }) 
+				
+			function loginUser(){	
+				data.name=$("#name").val();
+				data.password=$("#password").val();
+				  
+				$.ajax({   
+                    url:'http://www.badqh.cn/user/loginUser',
+                    data: data,
+                    dataType: 'json', //服务器返回json格式数据
+                    type: 'get', //HTTP请求类型
+                    timeout: 10000, //超时时间设置为10秒；
+                    success: function(result) {
+                    		setCache("openId",result.data.openId);
+                    		var openIdStr= getCache("openId");
+                    		mui.alert("openIdStr==>"+openIdStr);
+                    		mui.toast("登录成功"); 
+	                    mui.openWindow({
+	                        url:'user_info.html',
+	                        id:"user_info"
+	                    }); 
+                    },
+                    error: function() {
+
+                    }
+                });
+                
+            }
+			
+		</script>
+	</body>
+
+</html>

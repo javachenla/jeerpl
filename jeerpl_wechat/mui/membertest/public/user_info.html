@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<!--App自定义的css-->
+		<!--<link rel="stylesheet" type="text/css" href="../css/app.css"/>-->
+	</head>
+
+	<body>
+
+	    <!--	<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">9宫格默认样式</h1>
+		</header>-->
+		<div class="mui-content" id="consultantslist">
+                        <ul class="mui-table-view">
+							<li class="mui-table-view-cell">
+								<a>姓名<span class="mui-pull-right"> {{nickname}}</span></a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a>性别<span class="mui-pull-right">{{sex | formatSex }}</span></a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a>所在省<span class="mui-pull-right">{{province}}</span></a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a>所在市<span class="mui-pull-right">{{city}}</span></a>
+							</li>							
+						</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../myjs/jquery.min.js" ></script>
+	<script src="../js/mui.min.js"></script>
+	<script src="../myjs/vue.min.js"></script>
+	<script src="../myjs/get-url.js"></script>
+	<script src="../myjs/common.js"></script>
+	<script>
+		mui.init({
+			swipeBack:true //启用右滑关闭功能
+		});
+		 
+        $(function() {
+
+        var vm = new Vue({
+            el: '#consultantslist',  //挂载元素
+            data: {
+              nickname:'',
+              sex:'',
+              province:'',
+              city:''
+            },
+            filters: {
+                formatSex(val) {
+                     if (val != null) {
+                         if(val==1){
+                         	return '男';
+                         }
+                         if(val==2){
+                         	return '女';
+                         }
+                     }
+                }
+              }
+        });
+        
+            function initInfo(){
+            	
+	         	var openid=getCache("openId");
+	         	
+	         	$.ajax({
+                    url:'http://www.badqh.cn/user/loginUser',
+                    data: {"openId":openid},
+                    dataType: 'json', //服务器返回json格式数据
+                    type: 'get', //HTTP请求类型
+                    timeout: 10000, //超时时间设置为10秒；
+                    success: function(result) {
+                    	if(result.rtnCode==200){
+                    		vm.nickname=result.data.nickname;
+                    		vm.sex=result.data.sex;
+                    		vm.province=result.data.province;
+                    		vm.city=result.data.city;
+                    	}else{
+                    		mui.alert("程序出错了");
+                    	}
+                        debugger;
+                    },
+                    error: function() {
+
+                    }
+                });
+                
+	        }
+			initInfo();
+		})
+	
+	</script>
+        
+</html>

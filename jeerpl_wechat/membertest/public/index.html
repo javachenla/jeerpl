@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<!--<title>Hello MUI</title>-->
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<!--App自定义的css-->
+		<!--<link rel="stylesheet" type="text/css" href="../css/app.css"/>-->
+	</head>
+
+	<body>
+	<!--	<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">9宫格默认样式</h1>
+		</header>-->
+		<div class="mui-content">
+		        <ul class="mui-table-view mui-grid-view mui-grid-9">
+		            <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3"><a href="register.html">
+		                    <span class="mui-icon mui-icon-home"></span>
+		                    <div class="mui-media-body">用户注册</div></a></li>
+		                    
+		            <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3"><a id="logBtn" href="javascript:void(0);">
+		                    <span class="mui-icon mui-icon-email"></span>
+		                    <div class="mui-media-body">用户登录</div></a></li>
+		                    
+		            <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3"><a href="active_list.html">
+		                    <span class="mui-icon mui-icon-chatbubble"></span>
+		                    <div class="mui-media-body">活动列表</div></a></li>
+		                    
+		            <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3"><a href="feedback.html">
+		                    <span class="mui-icon mui-icon-location"></span>
+		                    <div class="mui-media-body">图片上传</div></a></li>
+
+		            <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3"><a id="logOutBtn" href="javascript:void(0);">
+		                    <span class="mui-icon mui-icon-location"></span>
+		                    <div class="mui-media-body">退出登录</div></a></li>
+		        </ul> 
+		</div>
+	</body>
+	<script src="../myjs/jquery.min.js"></script>
+	<script src="../js/mui.min.js"></script>
+	<script src="../myjs/common.js"></script>
+		
+	<script>
+		mui.init({
+			swipeBack:true //启用右滑关闭功能
+		});
+		
+		$("#logBtn").click(function(){
+			alert("111");
+			if(null!= getCache("openId")){
+		      mui.openWindow({
+                    url:'user_info.html',
+                    id:"user_info"
+              });
+			}else{
+		      mui.openWindow({
+                    url:'login.html',
+                    id:"login"
+              });
+			}
+			
+		})
+		
+		$("#logOutBtn").click(function(){
+			 delCache("openId");
+			 mui.alert("退出成功");
+		})
+		
+		
+	</script>
+</html>

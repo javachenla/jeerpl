@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="../css/mui.min.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		
+		<form class="mui-input-group">
+		    <div class="mui-input-row">
+		        <label>用户名</label>
+		    <input type="text" name="name" id="name" class="mui-input-clear" placeholder="请输入用户名">
+		    </div>
+		    <div class="mui-input-row">
+		        <label>密码</label>
+		        <input type="password"  name="password" id="password"  class="mui-input-password" placeholder="请输入密码">
+		    </div>
+		    <div class="mui-button-row" id="loginDiv">
+		        <button type="button" id="loginBtn" class="mui-btn mui-btn-primary" style="width: 100%;">注册</button>
+		    </div>
+		</form>
+		
+		<script src="../js/mui.min.js"></script>
+		<script src="../myjs/jquery.min.js" ></script>
+		<script src="../myjs/vue.min.js"></script>
+		<script src="../myjs/get-url.js"></script>
+	    <script src="../myjs/common.js"></script>
+	    
+		<script type="text/javascript">
+			mui.init()
+			
+			var wxUserInfo={};
+			
+			function getWxUserInfo(){
+				 
+				$.ajax({
+					type : "GET",
+					url : "http://www.badqh.cn/mywechat/getWxUserInfo",
+					
+					data:{
+						code:$.getUrlParam('code'),
+						reUrl:window.location.href
+					},
+					
+					async : false,
+					success : function(rtnData) { 
+						if(rtnData.rtnCode==200){
+							wxUserInfo=rtnData.data;
+							debugger;
+						}else if(rtnData.rtnCode==201){
+							//跳转页面
+							window.location.href=rtnData.data;					
+						}else{
+							console.log(rtnData.msg);
+						}
+					
+					},
+					error : function(msg){
+						alert("get openid  error!!! ");
+					}
+				});
+				 
+			}
+			
+			getWxUserInfo();
+			
+				
+			mui("#loginDiv").on('click',"#loginBtn",function(){
+			     insertUser();
+		    }) 
+				
+			function insertUser(){	
+				wxUserInfo.name=$("#name").val();
+				wxUserInfo.password=$("#password").val();
+				  
+				$.ajax({   
+                    url:'http://www.badqh.cn/user/insertUser',
+                    data: wxUserInfo,
+                    dataType: 'json', //服务器返回json格式数据
+                    type: 'get', //HTTP请求类型
+                    timeout: 10000, //超时时间设置为10秒；
+                    success: function(result) {
+                        mui.toast("注册成功"); 
+                        setCache("openId",wxUserInfo.openId);
+	                    mui.openWindow({
+	                        url:'index.html',
+	                        id:"index"
+	                    });
+                    },
+                    error: function() {
+
+                    }
+                });
+                
+            }
+			
+		</script>
+	</body>
+
+</html>
