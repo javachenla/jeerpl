@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.dao.ActiveListDao" >
+
+  <resultMap id="BaseResultMap" type="com.example.demo.bean.ActiveList" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="create_date" property="create_date" jdbcType="VARCHAR" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="starttime" property="starttime" jdbcType="VARCHAR" />
+    <result column="endtime" property="endtime" jdbcType="VARCHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <select id="selectAll" resultMap="BaseResultMap">
+    select 
+        id,
+		create_date,
+		title,
+		starttime,
+		endtime,
+		content
+    from serv_activelist
+  </select>
+ 
+</mapper>
+
